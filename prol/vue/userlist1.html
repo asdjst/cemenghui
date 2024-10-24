@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>用户管理</title>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+</head>
+<body>
+<div id="app">
+    <!-- 导航栏 -->
+    <el-row>
+        <el-col :span="24" class="center">
+            <el-button type="success" @click="exit">安全退出</el-button>
+        </el-col>
+    </el-row>
+
+    <!-- 搜索栏 -->
+    <el-row>
+        <el-col :span="12" :offset="6">
+            <el-input placeholder="请输入用户电话" v-model="searchInput" class="input-with-select">
+                <el-button slot="append" icon="el-icon-search" @click="searchUser"></el-button>
+            </el-input>
+        </el-col>
+    </el-row>
+
+    <!-- 添加用户按钮 -->
+    <el-row>
+        <el-col :span="24" class="center">
+            <el-link icon="el-icon-edit" href="adduser.html">添加用户</el-link>
+        </el-col>
+    </el-row>
+
+    <!-- 用户列表 -->
+    <el-row>
+        <el-col :span="24">
+            <el-table :data="users" border style="width: 100%">
+                <el-table-column fixed prop="userId" label="编号" width="70"></el-table-column>
+                <el-table-column prop="tel" label="电话" width="150"></el-table-column>
+                <el-table-column prop="loginPwd" label="用户密码" width="200"></el-table-column>
+                <el-table-column prop="userName" label="用户名" width="200"></el-table-column>
+                <el-table-column label="操作" width="150">
+                    <template slot-scope="scope">
+                        <el-button type="danger" circle icon="el-icon-delete" @click="delUser(scope.row.userId)"></el-button>
+                        <el-button type="primary" circle icon="el-icon-edit" @click="editUser(scope.row.userId)"></el-button>
+                    </template>
+                </el-table-column>
+            </el-table>
+        </el-col>
+    </el-row>
+
+    <!-- 修改用户弹窗 -->
+    <el-dialog :title="'修改用户 ID: ' + form.userId" :visible.sync="dialogFormVisible">
+        <el-form :model="form" label-width="80px">
+            <el-form-item label="电话">
+                <el-input v-model="form.tel"></el-input>
+            </el-form-item>
+            <el-form-item label="用户密码">
+                <el-input v-model="form.loginPwd"></el-input>
+            </el-form-item>
+            <el-form-item label="用户名">
+                <el-input v-model="form.userName"></el-input>
+            </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+            <el-button @click="dialogFormVisible = false">取消</el-button>
+            <el-button type="primary" @click="dialogFormVisible = false; saveChanges(form)">确定</el-button>
+        </div>
+    </el-dialog>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.min.js"></script>
+<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+    axios.defaults.withCredentials = true;
+    new Vue({
+        el: '#app',
+        data: {
+            users: [],
+            dialogFormVisible: false,
+            form: {
+                userId: '',
+                tel: '',
+                loginPwd: '',
+                userName: ''
+            },
+            searchInput: ''
+        },
+        methods: {
+            loadUsers() {
+                axios.get('http://localhost:9000/user/list').then(res => {
+                    if (res.data.isOk) {
+                        this.$message('加载数据成功');
+                        this.users = res.data.users;
+                    }
+                })
+            },
+            delUser(userId) {
+                axios.get('http://localhost:9000/user/del', {
+                    params: {
+                        userId
+                    }
+                }).then(res => {
+                    alert(res.data.msg);
+                    this.loadUsers();
+                })
+            },
+            editUser(userId) {
+                this.dialogFormVisible = true;
+                this.form.userId = userId;
+            },
+            saveChanges(form) {
+                const { userId, tel, loginPwd, userName } = form;
+                axios.get('http://localhost:9000/user/Change', {
+                    params: {
+                        userId,
+                        tel,
+                        loginPwd,
+                        userName
+                    }
+                }).then(res => {
+                    alert(res.data.msg);
+                    this.loadUsers();
+                })
+            },
+            searchUser() {
+                axios.get('http://localhost:9000/user/Select', {
+                    params: {
+                        tel: this.searchInput
+                    }
+                }).then(res => {
+                    alert(res.data.msg);
+                    if (res.data.isOk) {
+                        this.users = [res.data.user];
+                    }
+                })
+            },
+            exit() {
+                const confirmExit = confirm("是否退出");
+                if (confirmExit) {
+                    axios.get('http://localhost:9000/user/logout').then(res => {
+                        alert(res.data.msg);
+                        if (res.data.isOk) {
+                            window.location.href = 'register.html';
+                        }
+                    });
+                }
+            }
+        },
+        created() {
+            this.loadUsers();
+        }
+    });
+</script>
+</body>
+</html>

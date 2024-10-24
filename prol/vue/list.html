@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<style>
+			.center {
+				text-align: center;
+			}
+		</style>
+		<style>
+		  .el-select .el-input {
+		    width: 130px;
+		  }
+		  .input-with-select .el-input-group__prepend {
+		    background-color: #fff;
+		  }
+		</style>
+		<link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+	</head>
+	<body>
+		<div id="app">
+			<!--安全退出-->
+			
+		<el-row>
+			<el-button type="success" @click="exit()">安全退出</el-button>
+		</el-row>
+			
+			<!--搜索栏-->
+            <el-input placeholder="请输入内容" v-model="input3" class="input-with-select">
+				</el-select>
+				<!--搜索按钮-->
+				    <el-button slot="append" icon="el-icon-search" @click="select(input3)"></el-button>
+				  </el-input>
+		<!--添加书-->
+			<el-link icon="el-icon-edit" href="add.html">添加图书</el-link>
+		<!--书表-->
+			<el-table :data="books" border style="width: 100%">
+				
+				<el-table-column fixed prop="bookId" label="编号" width="70">
+				</el-table-column>
+				<el-table-column prop="title" label="书名" width="300">
+				</el-table-column>
+				<el-table-column prop="price" label="价格" width="120">
+				</el-table-column>
+				<el-table-column prop="desc" label="描述" width="500">
+				</el-table-column>
+        <!--//删除-->
+			<el-table-column label="操作" width="100">
+					<template slot-scope="scope">
+						
+						<el-popconfirm :title="`确定删除 书名:'${scope.row.title}'？`"
+							@confirm="delBook(scope.row.bookId)">
+							<el-button type="danger" circle icon="el-icon-delete" slot="reference" ></el-button>
+						</el-popconfirm>
+					</template>
+				</el-table-column>
+				
+		<!--//修改-->		
+				<el-table-column label="修改" width="100">
+					<template slot-scope="scope">
+						
+						<el-popconfirm :title="`确定修改 书名:'${scope.row.title}'？`"
+							@confirm="handleEdit(scope.row.bookId)">
+							<el-button type="primary" circle icon="el-icon-edit" slot="reference"></el-button>
+						</el-popconfirm>
+					</template>
+				</el-table-column>
+				
+			</el-table>
+		<!--//修改弹出-->	
+			<el-dialog :title="'修改ID: ' + form.bookid" :visible.sync="dialogFormVisible">
+			            <el-form :model="form">
+			                <el-form-item label="书名" :label-width="formLabelWidth">
+			                    <el-input v-model="form.title" autocomplete="off"></el-input>
+			                </el-form-item>
+							<el-form-item label="价格" :label-width="formLabelWidth">
+							    <el-input v-model="form.price" autocomplete="off"></el-input>
+							</el-form-item>
+							<el-form-item label="描述" :label-width="formLabelWidth">
+							    <el-input v-model="form.desc" autocomplete="off"></el-input>
+							</el-form-item>
+			              
+			            </el-form>
+			            <div slot="footer" class="dialog-footer">
+			                <el-button @click="dialogFormVisible = false">取消</el-button>
+			                <el-button type="primary" @click="dialogFormVisible = false;saveChanges(this.form)">确定</el-button>
+			            </div>
+			        </el-dialog>
+			    </div>
+			
+		
+
+		</div>
+		
+		
+		
+
+		<script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.min.js"></script>
+		<!-- 引入 ElementUI 的 JS 文件 -->
+		<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+		<script>
+			axios.defaults.withCredentials = true;
+			new Vue({
+				el: '#app',
+				data: {
+					books: [],
+					 dialogFormVisible: false,
+					                form: {
+										bookid:'',
+					                    title: '',
+										price:'',
+										desc:'',
+					                    
+					                },
+					                formLabelWidth: '120px',
+									
+				input3: '',	
+									
+					
+				},
+				methods: {
+					loadBooks() {
+						axios.get('http://localhost:9000/book/list').then(res => {
+							if (res.data.isOk) {
+								// alert(res.data.msg);
+								this.$message('加载数据成功');
+								this.books = res.data.books;
+							}
+						})
+					},
+					delBook(id) {
+						alert(id)
+						 axios.get('http://localhost:9000/book/del', {
+							params: {
+						 		id
+						 	}
+						}).then(res => {
+						alert(res.data.msg);
+						 	this.loadBooks()
+						 })
+					},
+					
+					
+					
+				
+				saveChanges(form){
+					
+					bookId = this.form.bookid,
+					title =this.form.title,
+					price=this.form.price,
+					desc=this.form.desc,
+					
+					 axios.get('http://localhost:9000/book/Change', {
+						params: {
+					 		bookId,
+							title,
+							price,
+							desc
+					 	}
+					}).then(res => {
+					alert(res.data.msg);
+					 	this.loadBooks()
+					 })
+					 
+					/*axios.post('http://localhost:9000/book/Change', this.form).then(res => {
+						alert(res.data.msg);
+						
+						window.alert("res.data.msg");
+						this.loadBooks();
+					})*/
+				},
+				handleEdit(bookId) {
+				    this.dialogFormVisible = true;
+				    this.form.bookid = bookId;
+				  },
+				  
+				 select(title){
+					 
+					 console.log(title);
+					 axios.get('http://localhost:9000/book/Select', {
+					 	params: {
+					  		title
+					  	}
+					 }).then(res => {
+					 alert(res.data.msg);
+					  if(res.data.isOk)
+					   {console.log(res.data.book);
+					   book=[res.data.book]
+					  	this.books=book;
+						}
+						
+					  })
+				 } ,
+				 
+				 exit(){
+					 a=confirm("是否退出");
+					 if(a){
+					 axios.get('http://localhost:9000/user/logout').then(res=> {
+					       // 处理成功响应，例如跳转到登录页面
+						   alert(res.data.msg);
+						   if(res.data.isOk)
+						   {window.location.href = 'register.html';}
+					     });
+						 }
+				 }
+				  
+				  
+				},
+				created() {
+					//Vue对象创建完成时，执行的钩子函数
+					this.loadBooks()
+				}
+			
+			})
+		</script>
+	</body>
+</html>

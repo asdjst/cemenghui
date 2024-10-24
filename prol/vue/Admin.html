@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>管理员登录</title>
+    <link rel="stylesheet" href="../css/el-ui.css">
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+			
+			background-image: url('./img/1.jpg');
+							background-size: cover;
+							background-repeat: no-repeat;
+        }
+        #app {
+            width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #ffffff;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            font-weight: bold;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .el-button {
+            width: 70px;
+            margin-top: 20px;
+            border-radius: 20px;
+        }
+        .el-input__inner {
+            border-radius: 20px;
+        }
+        .el-form-item__label {
+            text-align: left;
+            color: #333;
+            font-weight: bold;
+        }
+        .el-form-item {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <h1>管理员登录</h1>
+        <el-form :model="adminForm" :rules="rules" ref="adminForm" label-width="100px">
+            <el-form-item label="用户名" prop="username">
+                <el-input v-model="adminForm.username" placeholder="请输入用户名"></el-input>
+            </el-form-item>
+            <el-form-item label="密码" prop="password">
+                <el-input v-model="adminForm.password" placeholder="请输入密码" show-password></el-input>
+            </el-form-item>
+            <el-form-item>
+                <el-button type="primary" @click.prevent="login()">登录</el-button>
+            </el-form-item>
+        </el-form>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.min.js"></script>
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        axios.defaults.withCredentials = true;
+        new Vue({
+            el: '#app',
+            data: {
+                adminForm: {
+                    username: '',
+                    password: ''
+                },
+                rules: {
+                    username: [{
+                        required: true,
+                        message: '用户名不能为空',
+                        trigger: 'blur'
+                    }],
+                    password: [{
+                        required: true,
+                        message: '密码不能为空',
+                        trigger: 'blur'
+                    }]
+                }
+            },
+            methods: {
+                login() {
+                    this.$refs.adminForm.validate((valid) => {
+                        if (valid) {
+                            let fd = new FormData();
+                            fd.append('name', this.adminForm.username);
+                            fd.append('Pwd',this.adminForm.password);
+                            
+                            axios.post('http://localhost:9000/admin/login', fd).then(res => {
+                                if (res.data.isOk) {
+                                    location.href = 'userlist.html';
+                                    this.$message({
+                                        message: res.data.msg,
+                                        type: 'success'
+                                    });
+                                } else {
+                                    this.$message({
+                                        message: res.data.msg,
+                                        type: 'error'
+                                    });
+                                }
+                            })
+                        } else {
+                            return false;
+                        }
+                    });
+                }
+            }
+        })
+    </script>
+</body>
+</html>

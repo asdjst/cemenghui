@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+	</head>
+	<body>
+		<div id="app">
+			
+			<el-row>
+			  <el-col  :offset="6" :span="12">
+				  <el-form :model="userForm" :rules="rules" ref="userForm" label-width="100px" class="demo-ruleForm">
+				  	<el-form-item label="电话" prop="tel">
+				  		<el-input v-model="userForm.tel"></el-input>
+				  	</el-form-item>
+				  	<el-form-item label="密码" prop="loginPwd">
+				  		<el-input v-model="userForm.loginPwd"></el-input>
+				  	</el-form-item>
+				  	<el-form-item label="用户名" prop="userName">
+				  		<el-input v-model="userForm.userName"></el-input>
+				  	</el-form-item>
+				  	
+				  	<el-form-item>
+				  		<el-button type="primary" @click.prevent="addUser()">立即创建</el-button>
+				  		
+				  	</el-form-item>
+				  </el-form>
+			  </el-col>
+			</el-row>
+			
+
+		</div>
+		<script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.min.js"></script>
+		<!-- 引入 ElementUI 的 JS 文件 -->
+		<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+		<script>
+			axios.defaults.withCredentials = true;
+			new Vue({
+				el: '#app',
+				data: {
+					userForm: {
+						tel: '',
+						loginPwd: null,
+						userName: null
+					},
+					rules: {
+					          tel: [
+					            { required: true, message: '请输入电话', trigger: 'blur' }
+					          ],
+							  loginPwd:[
+								{ required: true,message: '请输入密码', trigger: 'blur' }
+								 
+							  ],
+							  userName:[
+							  	{ required: true,message: '请输入用户名', trigger: 'blur' }
+							  								 
+							  ]
+					}
+				},
+				methods: {
+					addUser() {
+						let fd = new FormData();
+						fd.append('tel', this.userForm.tel);
+						fd.append('loginPwd', this.userForm.loginPwd);
+						fd.append('userName', this.userForm.userName);
+						axios.post('http://localhost:9000/user/add', fd).then(res => {
+							alert(res.data.msg);
+							if (res.data.isOk) {
+								location.href = 'userlist.html';
+							}
+							else if(res.data.msg=='错误，未登录或登录失效，请重新登录后在执行')
+							{
+								location.href = 'register';
+							}
+						})
+					}
+				}
+			})
+		</script>
+	</body>
+</html>

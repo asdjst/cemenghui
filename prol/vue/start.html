@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>图书管理系统</title>
+    <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        #app {
+            width: 100%;
+            max-width: 600px;
+            padding: 40px;
+            background: #ffffff;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            text-align: center;
+        }
+        h1 {
+            color: #409EFF;
+            margin-bottom: 40px;
+        }
+        .button-container {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 30px;
+        }
+        .el-button {
+            width: 45%;
+            padding: 15px 0;
+            font-size: 18px;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <h1>图书管理系统</h1>
+        <div class="button-container">
+            <el-button type="primary" @click="redirectToUserLogin">用户登录</el-button>
+            <el-button type="success" @click="redirectToAdminLogin">管理员登录</el-button>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.min.js"></script>
+    <script src="https://unpkg.com/element-ui/lib/index.js"></script>
+    <script>
+        new Vue({
+            el: '#app',
+            methods: {
+                redirectToUserLogin() {
+                    window.location.href = 'register.html';  // 替换为实际的用户登录页面路径
+                },
+                redirectToAdminLogin() {
+                    window.location.href = 'admin.html';  // 替换为实际的管理员登录页面路径
+                }
+            }
+        })
+    </script>
+</body>
+</html>
